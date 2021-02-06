@@ -1,0 +1,146 @@
+Create table publisher (Name varchar(50) primary key, Address varchar(100),
+Phone bigint);
+
+Create table BOOK (Book_id int primary key, Title varchar(100),
+Publisher_Name varchar(100) references publisher(Name) on delete cascade,
+Pub_Year int(4));
+
+Create table BOOK_AUTHORS (Book_id int, Author_Name
+varchar(100), primary key(Book_id, Author_Name), foreign key(Book_id)
+references BOOK(Book_id) on delete cascade );
+
+Create table LIBRARY_PROGRAMME (Programme_id int primary key,
+Programme_Name varchar(100), Address varchar(100));
+
+
+Create table BOOK_COPIES
+(
+Book_id int, Programme_id int, No_of_Copies int,
+primary key(Book_id, Programme_id),
+foreign key(Book_id) references BOOK(Book_id) on delete cascade ,
+foreign key(Programme_id) references LIBRARY_PROGRAMME(Programme_id) on delete
+cascade
+);
+
+Create table BOOK_LENDING (Book_id int, Programme_id int,
+Card_No int, Date_Out date, Due_Date date,
+Primary key(Book_id, Programme_id, Card_No),
+foreign key(Book_id) references BOOK(Book_id) on delete cascade ,
+foreign key(Programme_id) references LIBRARY_PROGRAMME(Programme_id) on delete
+cascade );
+
+INSERTING:
+
+insert into publisher values('TMH','Bangalore', 1012345678);
+insert into publisher values('Addision Wesley','Mumbai', 1212345678);
+insert into publisher values('Pearson','chennai', 1212345678);
+insert into publisher values('Cengage','hyderabad', 1312345678);
+insert into publisher values('Oxford','New Delhi', 1112345678);
+select * from publisher;
+
+insert into BOOK values(100,'Unix Concepts and Applications','TMH',2005);
+insert into BOOK values(101, 'UNIX & Shell Programming','Pearson',2014);
+insert into BOOK values(102, 'Core Python Applications Programming','Pearson',2015);
+insert into BOOK values(103, 'Formal Languages and Automata Theory','Oxford',2012);
+insert into BOOK values(104, 'Fundamentals of Database Systems','Pearson',2017);
+select * from BOOK;
+
+insert into BOOK_AUTHORS values(100, 'Sumitabha Das');
+insert into BOOK_AUTHORS values(101, 'Venkatesh Murthy');
+insert into BOOK_AUTHORS values(102, 'Wesley J Chun');
+insert into BOOK_AUTHORS values(103 , 'C K Nagpal');
+insert into BOOK_AUTHORS values(104 , 'Ramez Elmasri');
+insert into BOOK_AUTHORS values(104 , 'Shamkant B. Navathe');
+select * from BOOK_AUTHORS;
+
+insert into LIBRARY_PROGRAMME values(1,'CSE', 'Block A');
+insert into LIBRARY_PROGRAMME values(2,'ISE', 'Block F');
+insert into LIBRARY_PROGRAMME values(3,'ECE', 'Block B');
+insert into LIBRARY_PROGRAMME values(4,'ME', 'Block D');
+insert into LIBRARY_PROGRAMME values(5,'CIV', 'Block D');
+select * from LIBRARY_PROGRAMME;
+
+insert into BOOK_COPIES values(100,1,5);
+insert into BOOK_COPIES values(100,2,40);
+insert into BOOK_COPIES values(101,1,10);
+insert into BOOK_COPIES values(101,2,60);
+insert into BOOK_COPIES values(101,3,20);
+insert into BOOK_COPIES values(102,1,60);
+insert into BOOK_COPIES values(102,2,100);
+insert into BOOK_COPIES values(102,3,50);
+insert into BOOK_COPIES values(103,3,20);
+insert into BOOK_COPIES values(104,1,50);
+select * from BOOK_COPIES;
+
+
+insert into BOOK_LENDING values(100,1,200,'2019-10-15', '2019-10-30');
+insert into BOOK_LENDING values(101,1,200,'2020-09-5', '2020-09-20');
+insert into BOOK_LENDING values(102,1,300,'2017-01-15', '2017-04-20');
+insert into BOOK_LENDING values(101,1,300,'2017-02-15', '2017-05-20');
+insert into BOOK_LENDING values(103,1,300,'2017-03-15', '2017-04-20');
+insert into BOOK_LENDING values(104,1,300,'2017-04-15', '2017-06-20');
+select * from BOOK_LENDING;
+
+
+
+QUERIES:
+
+
+
+select bk.Book_id, Title, Publisher_Name, Author_Name, No_of_Copies, Programme_Name
+from BOOK bk, BOOK_AUTHORS ba, LIBRARY_PROGRAMME lp, BOOK_COPIES bc
+where bk.Book_id=ba.Book_id and bk.Book_id=bc.Book_id and bc. Programme_id=lp.
+Programme_id
+order by Programme_name, bk.Book_id;
+
+
+
+
+select Card_No as borrower,count(*) as noofbooksborrowed from BOOK_LENDING where
+Date_Out between '2017/01/01' and '2017/06/30' group by Card_No having count(*)>3;
+
+
+
+
+delete from BOOK where Book_id=103;
+select * from BOOK;
+select * from BOOK_AUTHORS;
+select * from BOOK_LENDING;
+
+
+Create view book_part as select Book_id, pub_year from BOOK;
+Select * from book_part;
+
+
+
+
+create view book_view (Book_id,Title, No_of_copies) as Select BOOK.Book_id, Title,
+sum(No_of_Copies) from BOOK, BOOK_COPIES where BOOK.Book_id=BOOK_COPIES.Book_id
+group by BOOK.Book_id,Title order by BOOK.Book_id;
+select * from book_view;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,138 @@
+Create table actor (act_id int primary key, act_name varchar(60) not null,
+act_gender char(1));
+
+Create table director (dir_id int primary key, dir_name varchar(50) not null,
+dir_phone bigint(10) );
+
+
+Create table movies (mov_id int primary key, mov_title varchar(100) not
+null, mov_year int (4),mov_lang varchar(20),
+dir_id int references director on delete cascade);
+
+create table movie_cast (act_id int, mov_id int, role varchar(50),
+primary key(act_id,mov_id),
+foreign key(act_id) references actor(act_id) on delete cascade,
+foreign key(mov_id) references movies(mov_id) on delete cascade);
+
+create table rating (mov_id int primary key, rev_stars int(1),
+foreign key (mov_id) references movies(mov_id) on delete cascade);
+
+
+insertion:
+
+insert into actor values(101, 'Vin diesel', 'M');
+insert into actor values(102, 'Will smith', 'M');
+insert into actor values(103, 'Tom Cruish', 'M');
+insert into actor values(104, 'Janet Leigh', 'F');
+insert into actor values(105, 'Kim Novak', 'F');
+insert into actor values(106, 'Jeff Goldblum', 'M');
+insert into actor values(107, 'Sam Neil', 'M');
+insert into actor values(108, 'Chris Prat', 'M');
+insert into actor values(109, 'Bryce', 'F');
+insert into actor values(110, 'Laura', 'F');
+
+select * from actor;
+
+
+insert into director values(201, 'spielberg', 123456781);
+insert into director values(202, 'Hitchcock', 123456782);
+insert into director values(203, 'James Cameron', 123456783);
+insert into director values(204, 'Scott', 123456784);
+insert into director values(205, 'Bayona', 123456785);
+insert into director values(206, 'Colin Trevorrow', 123456786);
+
+select * from director;
+
+
+insert into movies values(301, 'Jurassic Park', 1993, 'English',201);
+insert into movies values(302, 'Jurassic world', 2015, 'English',206);
+insert into movies values(303, 'Jaws', 2009, 'English',201);
+insert into movies values(304, 'Avatar', 2009, 'English',203);
+insert into movies values(305, 'A Monster Call', 2016, 'English',205);
+insert into movies values(306, 'Vertigo', 1958, 'English',202);
+insert into movies values(307, 'Pshyco', 1960, 'English',202);
+insert into movies values(308, ' Jurassic world 2', 2018, 'English',205);
+
+ select * from Movies;
+
+
+Insert into movie_cast values(106,301,'Hero');
+Insert into movie_cast values(108,302,'Hero');
+Insert into movie_cast values(109,302,'Heroine');
+Insert into movie_cast values(108,308,'Hero');
+Insert into movie_cast values(103,301,'Hero');
+Insert into movie_cast values(110,301,'Hero');
+ select * from movie_cast order by mov_id;
+
+
+Insert into rating values(301,5);
+Insert into rating values(302,4);
+Insert into rating values(303,3);
+Insert into rating values(304,4);
+Insert into rating values(305,5);
+Insert into rating values(306,4);
+ select * from rating order by mov_id;
+
+
+
+queries:
+
+1. List the titles of all movies directed by ‘Hitchcock’.
+
+Select mov_title from movies where dir_id in (select dir_id from director where
+dir_name='Hitchcock');
+
+
+2. Find the movie names where one or more actors acted in two or more movies
+
+select mov_title from (movies natural join movie_cast) where act_id in (select act_id
+from ((movies natural join movie_cast) natural join actor ) group by act_id having
+count(*)>1);
+
+
+3. List all actors who acted in a movie before 2000 and also in a movie after 2015
+(use JOIN operation).
+
+select act_name from (( movies natural join movie_cast ) natural join actor ) where
+mov_year < 2000 or mov_year > 2015;
+
+
+4. Find the title of movies and number of stars for each movie that has at least one
+rating and find the highest number of stars that movie received. Sort the result by
+movie title.
+
+select MOV_TITLE, REV_STARS from ( rating natural join movies ) order by
+rev_stars desc, MOV_TITLE asc;
+
+
+5. Update rating of all movies directed by ‘Steven Spielberg’ to 5.
+
+Update rating set REV_STARS=5 where MOV_ID in ( select mov_id from
+( movies natural join director) where dir_name= 'spielberg');
+select MOV_TITLE, REV_STARS from ( rating natural join movies ) order by
+REV_STARS desc, MOV_TITLE asc; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
