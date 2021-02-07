@@ -1,0 +1,135 @@
+Create table STUDENT(USN char(10) primary key, SName varchar(100) not
+null, Address varchar(200), Phone bigint (10), Gender char(1));
+
+
+Create table SEMSEC(SSID int primary key, Sem int (1), Sec
+char(1));
+
+
+Create table class(USN char(10) primary key, SSID int, foreign key
+(USN) references STUDENT(USN) on delete cascade, foreign key (SSID) references
+SEMSEC(SSID) on delete cascade);
+
+
+Create table COURSE(Subcode varchar(10) primary key, Title varchar(100) not
+null, Sem int(1), Credits int(1));
+
+
+
+Create table IAMARKS(USN char(10), Subcode varchar(10), SSID int,
+Test1 int(2), Test2 int(2), Test3 int(2), FinalIA int(4),
+Primary key(USN, Subcode, SSID),
+Foreign key(USN) references STUDENT(USN) on delete cascade,
+foreign key (Subcode) references COURSE(Subcode) on delete cascade,
+foreign key (SSID) references SEMSEC(SSID) on delete cascade);
+
+
+Insertion:
+
+
+Insert into STUDENT values('1HK15IS002', ' AFREEN AL SABA','Bangalore',1234567891, 'F');
+Insert into STUDENT values('1HK18IS003', 'Adnan Nadeem','Bangalore',1234567892,'M');
+Insert into STUDENT values('1HK18IS005', 'Akhila','Bangalore',1234567893, 'F');
+Insert into STUDENT values('1HK17IS001', 'Syed','Bangalore',1234567890, 'M');
+Insert into STUDENT values('1HK17IS002', 'Tameem','Bangalore',1234567890, 'M');
+Insert into STUDENT values('1HK17IS012', 'Ganesh','Bangalore',1234567890, 'M');
+Insert into STUDENT values('1HK17IS015', 'Mubashira','Bangalore',1234567890, 'F');
+select * from STUDENT;
+
+
+
+Insert into SEMSEC values (100, 4, 'A');
+Insert into SEMSEC values (101, 4, 'B');
+Insert into SEMSEC values (102, 4, 'C');
+Insert into SEMSEC values (103, 6, 'A');
+Insert into SEMSEC values (104, 6, 'B');
+Insert into SEMSEC values (105, 6, 'C');
+Insert into SEMSEC values (106, 8, 'A');
+Insert into SEMSEC values (107, 8, 'B');
+Insert into SEMSEC values (108, 8, 'C');
+
+select * from SEMSEC;
+
+Insert into class values('1HK17IS015', 102);
+Insert into class values('1HK18IS001', 101);
+Insert into class values('1HK15IS002', 103);
+Insert into class values('1HK18IS003', 102);
+Insert into class values('1HK18IS005', 102);
+Insert into class values('1HK17IS001', 106);
+Insert into class values('1HK17IS002', 106);
+Insert into class values('1HK17IS012', 107);
+select * from class;
+
+
+Insert into COURSE values('18CS41', 'Engg Maths4',4,5);
+Insert into COURSE values('18CS42', 'ADA',4,5);
+Insert into COURSE values('18CS43', 'Soft Engg',4,5);
+Insert into COURSE values('18CS44', 'Microcontroller',4,4);
+Insert into COURSE values('18CS81', 'Web Tech',8,5);
+Insert into COURSE values('18CS82', 'Machine Learning',8,5);
+Insert into COURSE values('18CS83', 'Soft Arch',8,5);
+Insert into COURSE values('18CS84', 'Python',8,5);
+Insert into COURSE values('18CS85', 'J2EE',4,5);
+select * from COURSE order by Subcode;
+
+
+Insert into IAMARKS(USN,Subcode,SSID,Test1,Test2,Test3) values('1HK17IS015',
+'18CS41',102,10,20,20);
+Insert into IAMARKS(USN,Subcode,SSID,Test1,Test2,Test3) values('1HK17IS015',
+'18CS42',102, 16,20,20);
+Insert into IAMARKS(USN,Subcode,SSID,Test1,Test2,Test3) values('1HK17IS015',
+'18CS43',102, 13,14,14);
+Insert into IAMARKS(USN,Subcode,SSID,Test1,Test2,Test3) values('1HK17IS015',
+'18CS44',102, 12,18,13);
+Insert into IAMARKS(USN,Subcode,SSID,Test1,Test2,Test3) values('1HK18IS003',
+'18CS41',102,17,19,20);
+Insert into IAMARKS(USN,Subcode,SSID,Test1,Test2,Test3) values('1HK18IS003',
+'18CS42',102,17,18,20);
+select * from IAMARKS;
+
+
+queries:
+
+
+1. List all the student details studying in fourth semester ‘C’ section.
+
+Select STUDENT.USN, SName, Address, Phone, Gender from STUDENT, SEMSEC,
+class where STUDENT.USN=class.USN and SEMSEC.SSID=class.SSID and Sem=4
+and Sec='C';
+
+
+2. Compute the total number of male and female students in each semester and in each
+section.
+
+Select Sem as Semester, Sec as Section, Gender, count(*) as No_Of_Students from
+((STUDENT natural join class) natural join SEMSEC ) group by Sem, Sec, Gender order by
+Sem, Sec;
+
+
+
+3. Create a view of Test1 marks of student USN ‘1HK18IS003’ in all Courses.
+
+create view Test1View as Select subcode, title, sem, test1 from ( COURSE natural join
+IAMARKS ) where usn='1HK18IS003' order by subcode;
+select * from Test1view;
+
+
+4. Calculate the FinalIA (average of best two test marks) and update the
+corresponding table for all students.
+
+Update IAMARKS set FINALIA=(test1+test2+test3- least(test1,test2,test3))/2 ;
+select * from IAMARKS;
+
+
+5. Categorize students based on the following criterion:
+If FinalIA = 17 to 20 then CAT = ‘Outstanding’
+If FinalIA = 12 to 16 then CAT = ‘Average’
+If FinalIA< 12 then CAT = ‘Weak’
+Give these details only for 8th semester A, B, and C section students
+
+Select USN, Sname, Subcode, Sem, Sec, FinalIA,
+CASE WHEN FinalIA between 17 and 20 THEN 'Outstanding'
+ WHEN FinalIA between 12 and 16 THEN 'Average'
+ WHEN FinalIA < 12 THEN 'Weak' END CAT
+FROM (STUDENT natural join IAMARKS natural join SEMSEC natural join
+COURSE ) WHERE Sem=8 and Sec in ('A','B','C') ORDER BY USN;
